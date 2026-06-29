@@ -1338,8 +1338,13 @@ async function init(){
 document.getElementById('login-btn').addEventListener('click',doLogin);
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 
-function doLogin(){
+async function doLogin(){
   const pass=document.getElementById('l-pass').value;
+  // Check password from Supabase first
+  try {
+    const {data}=await sb.from('settings').select('value').eq('key','password').single();
+    if(data) S.password=data.value;
+  } catch(e){}
   if(pass===S.password){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='flex';
@@ -1392,13 +1397,14 @@ document.getElementById('btn-save-notes').addEventListener('click',()=>saveNotes
 document.getElementById('btn-clear-notes').addEventListener('click',async()=>{const ok=await confirm_('مسح الملاحظات','هل تريد المسح؟');if(ok){document.getElementById('notes-ta').value='';await saveNotes(true);}});
 document.getElementById('hist-search').addEventListener('input',()=>renderHistory());
 
-document.getElementById('btn-chg-pass').addEventListener('click',()=>{
+document.getElementById('btn-chg-pass').addEventListener('click',async()=>{
   const p1=document.getElementById('new-p1').value;const p2=document.getElementById('new-p2').value;
   if(!p1){toast('ادخل كلمة المرور','error');return;}
   if(p1!==p2){toast('كلمتا المرور غير متطابقتين','error');return;}
-  S.password=p1;localStorage.setItem('hr_pass',p1);
+  await sb.from('settings').upsert({key:'password',value:p1});
+  S.password=p1;
   document.getElementById('new-p1').value='';document.getElementById('new-p2').value='';
-  toast('تم تغيير كلمة المرور ✓');
+  toast('تم تغيير كلمة المرور على كل الأجهزة ✓');
 });
 </script>
 </body>
