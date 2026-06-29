@@ -295,6 +295,122 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
   .sidebar-logo span,.nav-item span.nav-label{display:none;}
   .agents-grid{grid-template-columns:1fr;}
 }
+
+/* ══ REMINDERS ══ */
+#water-overlay {
+  position: fixed; inset: 0; z-index: 99999;
+  background: linear-gradient(135deg, #0a1628 0%, #0d2040 50%, #0a1628 100%);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2rem;
+  animation: reminderIn .5s ease;
+}
+#water-overlay.show { display: flex; }
+@keyframes reminderIn {
+  from { opacity: 0; transform: scale(.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.water-emoji { font-size: 5rem; margin-bottom: 1rem; animation: bounce 1s infinite; }
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.water-title {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 2rem; font-weight: 900;
+  color: #4fc3f7; margin-bottom: 1rem;
+}
+.water-msg {
+  font-size: 1.05rem; line-height: 2;
+  color: #e0f4ff; max-width: 600px;
+  background: rgba(79,195,247,.08);
+  border: 1px solid rgba(79,195,247,.2);
+  border-radius: 16px; padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.water-btn {
+  padding: 14px 40px; border: none; border-radius: 30px;
+  background: linear-gradient(135deg, #4fc3f7, #0288d1);
+  color: #fff; font-family: 'Cairo', sans-serif;
+  font-size: 1.1rem; font-weight: 700; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(79,195,247,.4);
+  transition: all .2s;
+}
+.water-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(79,195,247,.5); }
+
+/* Eye reminder — side notification */
+#eye-notif {
+  position: fixed; bottom: 24px; left: 24px; z-index: 9999;
+  background: linear-gradient(135deg, #1a2340, #0f1628);
+  border: 1px solid rgba(0,210,180,.35);
+  border-radius: 16px; padding: 1rem 1.4rem;
+  max-width: 320px; display: none;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  animation: slideUp .4s ease;
+}
+#eye-notif.show { display: flex; align-items: flex-start; gap: 12px; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.eye-emoji { font-size: 2rem; flex-shrink: 0; }
+.eye-content { flex: 1; }
+.eye-title { font-size: .85rem; font-weight: 700; color: #00d2b4; margin-bottom: 4px; }
+.eye-msg { font-size: .75rem; color: #a0b0c0; line-height: 1.6; }
+.eye-close {
+  position: absolute; top: 8px; left: 8px;
+  background: transparent; border: none;
+  color: #4a5270; cursor: pointer; font-size: .9rem;
+}
+.eye-close:hover { color: #fff; }
+.eye-timer {
+  height: 3px; background: rgba(0,210,180,.15);
+  border-radius: 2px; margin-top: 8px; overflow: hidden;
+}
+.eye-timer-bar {
+  height: 100%; background: linear-gradient(90deg, #00d2b4, #4f7cff);
+  border-radius: 2px; animation: timerBar 20s linear forwards;
+}
+@keyframes timerBar { from { width: 100%; } to { width: 0%; } }
+
+/* Tasks panel */
+#tab-tasks { padding: 1rem 1.5rem 2rem; }
+.tasks-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.task-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  background: var(--card); border: 1px solid var(--border);
+  margin-bottom: 6px; transition: all .2s;
+}
+.task-item:hover { border-color: var(--border2); }
+.task-cb { width: 18px; height: 18px; accent-color: var(--teal); cursor: pointer; flex-shrink: 0; }
+.task-text { flex: 1; font-size: .82rem; }
+.task-text.done { text-decoration: line-through; color: var(--muted2); }
+.task-pri { font-size: .6rem; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+.pri-high { background: rgba(255,79,106,.12); color: var(--rose); border: 1px solid rgba(255,79,106,.2); }
+.pri-med  { background: rgba(245,200,66,.1);  color: var(--gold); border: 1px solid rgba(245,200,66,.2); }
+.pri-low  { background: rgba(0,210,180,.1);   color: var(--teal); border: 1px solid rgba(0,210,180,.2); }
+.task-del { cursor: pointer; color: var(--muted2); font-size: .75rem; }
+.task-del:hover { color: var(--rose); }
+.task-add-row { display: flex; gap: 8px; margin-top: 10px; }
+.reminder-settings {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem; margin-top: 1rem;
+}
+.reminder-settings h3 { font-size: .83rem; font-weight: 700; margin-bottom: 1rem; }
+.rem-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: .8rem; }
+.rem-row label { color: var(--muted); min-width: 140px; }
+.rem-toggle {
+  width: 40px; height: 22px; border-radius: 11px;
+  background: var(--bg3); border: 1px solid var(--border2);
+  cursor: pointer; position: relative; transition: background .2s;
+  flex-shrink: 0;
+}
+.rem-toggle.on { background: var(--teal); border-color: var(--teal); }
+.rem-toggle::after {
+  content: ''; position: absolute; top: 2px; right: 2px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; transition: transform .2s;
+}
+.rem-toggle.on::after { transform: translateX(-18px); }
+
 </style>
 </head>
 <body>
@@ -339,6 +455,7 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
       <button class="nav-item" data-tab="reports"><span class="nav-icon">📑</span><span class="nav-label">التقارير</span></button>
       <button class="nav-item" data-tab="history"><span class="nav-icon">📜</span><span class="nav-label">السجل</span></button>
       <button class="nav-item" data-tab="notes"><span class="nav-icon">📝</span><span class="nav-label">ملاحظات</span></button>
+      <button class="nav-item" data-tab="tasks"><span class="nav-icon">✅</span><span class="nav-label">التاسكات</span></button>
       <button class="nav-item" data-tab="settings"><span class="nav-icon">⚙️</span><span class="nav-label">الإعدادات</span></button>
     </div>
     <div class="sidebar-footer">
@@ -514,6 +631,44 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
             <button class="tbtn" id="btn-clear-notes">مسح</button>
             <button class="tbtn tbtn-primary" id="btn-save-notes">حفظ</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div id="tab-tasks" class="panel">
+      <div class="tasks-header">
+        <h3 style="font-size:.9rem;font-weight:700;">✅ التاسكات</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="fi" id="task-pri-sel" style="width:100px;">
+            <option value="high">🔴 عاجل</option>
+            <option value="med">🟡 متوسط</option>
+            <option value="low">🟢 عادي</option>
+          </select>
+          <input type="text" class="fi" id="task-input" placeholder="اكتب تاسك جديد..." style="width:250px;margin:0;"/>
+          <button class="tbtn tbtn-primary" id="btn-add-task">إضافة</button>
+        </div>
+      </div>
+      <div id="tasks-list"></div>
+
+      <div class="reminder-settings" style="margin-top:1.5rem;">
+        <h3>⏰ إعدادات التذكيرات</h3>
+        <div class="rem-row">
+          <label>💧 تذكير المياه</label>
+          <div class="rem-toggle on" id="tog-water"></div>
+          <span style="color:var(--muted);font-size:.75rem;">كل ساعتين</span>
+        </div>
+        <div class="rem-row">
+          <label>👁️ تذكير العين</label>
+          <div class="rem-toggle on" id="tog-eye"></div>
+          <span style="color:var(--muted);font-size:.75rem;">كل 20 دقيقة</span>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted2);margin-top:8px;">
+          💡 التذكيرات شغالة طول ما التطبيق مفتوح
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="tbtn tbtn-green" id="test-water-btn" style="font-size:.75rem;">💧 اختبر تذكير المياه</button>
+          <button class="tbtn" id="test-eye-btn" style="font-size:.75rem;border-color:rgba(0,210,180,.3);color:var(--teal);">👁️ اختبر تذكير العين</button>
         </div>
       </div>
     </div>
@@ -783,13 +938,14 @@ function switchTab(name){
   document.querySelectorAll('.nav-item[data-tab]').forEach(n=>n.classList.remove('active'));
   document.getElementById(`tab-${name}`)?.classList.add('active');
   document.querySelector(`[data-tab="${name}"]`)?.classList.add('active');
-  const titles={today:'اليوم',schedules:'الجداول',agents:'الأجنت',performance:'الأداء',leaves:'الإجازات',overtime:'الأوفر تايم',penalties:'الجزاءات',calendar:'التقويم',reports:'التقارير',history:'سجل العمليات',notes:'الملاحظات',settings:'الإعدادات'};
+  const titles={today:'اليوم',schedules:'الجداول',agents:'الأجنت',performance:'الأداء',leaves:'الإجازات',overtime:'الأوفر تايم',penalties:'الجزاءات',calendar:'التقويم',reports:'التقارير',history:'سجل العمليات',notes:'الملاحظات',tasks:'التاسكات',settings:'الإعدادات'};
   document.getElementById('page-title').textContent=titles[name]||name;
   if(name==='today') renderToday();
   if(name==='calendar') renderCalendar();
   if(name==='history') renderHistory();
   if(name==='notes') loadNotes();
   if(name==='performance') renderPerformance();
+  if(name==='tasks') renderTasks();
 }
 
 // ══════════════════════════════════════════
@@ -1344,158 +1500,227 @@ async function saveNotes(manual=false){
 // ══════════════════════════════════════════
 // EXCEL EXPORT
 // ══════════════════════════════════════════
+
+// ── Helper: هل الأجنت في الجدول هذا اليوم؟ ──
+function isAgentInSchedule(agentName, dayName) {
+  for (const sc of S.schedules) {
+    const row = (sc.rows || []).find(r => r.day === dayName);
+    if (row) {
+      const allNames = [row.morning, row.night, row.onight]
+        .join('+').split('+').map(n => n.trim()).filter(Boolean);
+      if (allNames.includes(agentName)) return true;
+    }
+  }
+  return false;
+}
+
+// ── Helper: رقم العمود لحرف ──
+function columnLetter(n) {
+  let s = '';
+  while (n > 0) {
+    n--;
+    s = String.fromCharCode(65 + (n % 26)) + s;
+    n = Math.floor(n / 26);
+  }
+  return s;
+}
+
 async function exportExcel(){
   toast('جاري تجهيز الملف...','info');
   try{
-    const month=S.curM,year=S.curY;
-    const MONTHS=S.MONTHS;
-    const monthStr=`${year}-${String(month+1).padStart(2,'0')}`;
-    const daysInMonth=new Date(year,month+1,0).getDate();
-    const agents=S.agents.filter(a=>a.active);
-    const{data:allAbs}=await sb.from('absences').select('*');
+    const wb = new ExcelJS.Workbook();
+    const agents = S.agents.filter(a => a.active);
 
-    const wb=new ExcelJS.Workbook();
-    const BLUE='FF1F4E79',WHITE='FFFFFFFF',GREEN='FF70AD47',LGRAY='FFF2F2F2',YELLOW='FFFFF2CC';
-    const border={top:{style:'thin'},left:{style:'thin'},bottom:{style:'thin'},right:{style:'thin'}};
-    const cen={horizontal:'center',vertical:'middle',wrapText:true};
-    const rgt={horizontal:'right',vertical:'middle',wrapText:true};
+    // الفترة: من 25 الشهر الماضي لـ 25 الشهر الحالي
+    const now = new Date();
+    const fromDate = new Date(now.getFullYear(), now.getMonth() - 1, 25);
+    const toDate   = new Date(now.getFullYear(), now.getMonth(), 25);
 
-    // ── شيت الحضور ──
-    const ws1=wb.addWorksheet('الحضور',{views:[{rightToLeft:true}]});
-    ws1.mergeCells(1,1,1,daysInMonth+9);
-    const t1=ws1.getCell(1,1);t1.value='ATTENDANCE SHEET';t1.font={bold:true,size:18,color:{argb:WHITE}};t1.fill={type:'pattern',pattern:'solid',fgColor:{argb:BLUE}};t1.alignment=cen;ws1.getRow(1).height=35;
-    ws1.mergeCells(2,1,2,daysInMonth+9);
-    const t2=ws1.getCell(2,1);t2.value='شركة هيموكيور للخدمات الطبية';t2.font={bold:true,size:14,color:{argb:WHITE}};t2.fill={type:'pattern',pattern:'solid',fgColor:{argb:BLUE}};t2.alignment=cen;ws1.getRow(2).height=28;
-    ws1.mergeCells(3,1,3,5);ws1.getCell(3,1).value=`الفترة: ${MONTHS[month]} ${year}`;ws1.getCell(3,1).font={bold:true};ws1.getCell(3,1).alignment=rgt;
-    ws1.mergeCells(4,1,4,daysInMonth+9);
-    const t4=ws1.getCell(4,1);t4.value='P = حضور   |   OFF = راحة   |   A = غياب   |   S = مرضية   |   V = سنوية   |   X = بإذن';t4.font={size:9,italic:true};t4.fill={type:'pattern',pattern:'solid',fgColor:{argb:YELLOW}};t4.alignment=cen;
-    // headers row 5
-    ws1.getCell(5,1).value='م';ws1.getCell(5,2).value='الاسم الكامل';
-    for(let d=1;d<=daysInMonth;d++){const c=ws1.getCell(5,d+2);c.value=d;c.font={bold:true,size:9,color:{argb:WHITE}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:BLUE}};c.alignment=cen;c.border=border;}
-    ['أيام الحضور','راحة','غياب','مرضية','سنوية','بإذن','إجازة رسمية'].forEach((h,i)=>{const c=ws1.getCell(5,daysInMonth+3+i);c.value=h;c.font={bold:true,size:9,color:{argb:WHITE}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2E75B6'}};c.alignment=cen;c.border=border;});
-    [ws1.getCell(5,1),ws1.getCell(5,2)].forEach(c=>{c.font={bold:true,color:{argb:WHITE}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:BLUE}};c.alignment=cen;c.border=border;});
-    ws1.getRow(5).height=28;
+    // قائمة الأيام
+    const days = [];
+    let dd = new Date(fromDate);
+    while (dd <= toDate) { days.push(new Date(dd)); dd.setDate(dd.getDate()+1); }
+    const totalDays = days.length;
 
-    const DAY_N=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-    agents.forEach((agent,ai)=>{
-      const rn=ai+6;ws1.getRow(rn).height=20;
-      const bg=ai%2===0?LGRAY:WHITE;
-      ws1.getCell(rn,1).value=ai+1;ws1.getCell(rn,1).alignment=cen;ws1.getCell(rn,1).border=border;ws1.getCell(rn,1).fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};
-      ws1.getCell(rn,2).value=agent.full_name||agent.name;ws1.getCell(rn,2).alignment=rgt;ws1.getCell(rn,2).border=border;ws1.getCell(rn,2).font={bold:true};ws1.getCell(rn,2).fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};
-      let cP=0,cOFF=0,cA=0,cX=0,cS=0,cV=0,cH=0;
-      for(let d=1;d<=daysInMonth;d++){
-        const date=new Date(year,month,d);
-        const dayName=DAY_N[date.getDay()];
-        const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const leave=S.leaves.find(l=>l.agent_id===agent.id&&dateStr>=l.from_date&&dateStr<=l.to_date);
-        const absent=(allAbs||[]).find(a=>a.agent_id===agent.id&&a.day===dayName);
-        let val='P',bg2='FFE2EFDA';
+    const fmtD = dt => `${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()}`;
+    const DAY_N = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+    const DARK_BLUE='FF002060', WHITE='FFFFFFFF', OFF_C='FFD9D9D9',
+          ABS_C='FFFFC7CE', SICK_C='FFFFEB9C', VAC_C='FFC6EFCE', HOL_C='FFFFE699', LGRAY='FFF2F2F2';
+
+    const bd = { top:{style:'thin'}, left:{style:'thin'}, bottom:{style:'thin'}, right:{style:'thin'} };
+    const cen = { horizontal:'center', vertical:'middle', wrapText:true };
+    const rgt = { horizontal:'right',  vertical:'middle', wrapText:true };
+
+    const hdr = (ws, row, col, val, bg) => {
+      const cell = ws.getCell(row, col);
+      cell.value = val;
+      cell.font = { bold:true, size:9, color:{argb:WHITE} };
+      cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb: bg||DARK_BLUE} };
+      cell.alignment = cen;
+      cell.border = bd;
+    };
+
+    // ════ شيت الحضور ════
+    const ws1 = wb.addWorksheet('A&G', { views:[{rightToLeft:false}] });
+    ws1.getColumn(1).width = 1.2;
+    ws1.getColumn(2).width = 4;
+    ws1.getColumn(3).width = 32;
+    for(let i=0; i<totalDays; i++) ws1.getColumn(i+4).width = 4.2;
+    const sumS = totalDays + 4;
+    [1.5,8,7.5,7,9,8,7,8].forEach((w,i) => ws1.getColumn(sumS+i).width=w);
+
+    // صف 1: عنوان + شركة
+    ws1.getRow(1).height = 32;
+    const midCol = Math.floor(totalDays/2)+3;
+    ws1.getCell(1, midCol).value = 'ATTENDANCE  SHEET';
+    ws1.getCell(1, midCol).font = { bold:true, size:16, italic:true };
+    ws1.getCell(1, midCol).alignment = cen;
+    ws1.getCell(1, sumS+1).value = 'شركة هيموكيور';
+    ws1.getCell(1, sumS+1).font = { bold:true, size:11 };
+    ws1.getCell(1, sumS+1).alignment = cen;
+    ws1.getRow(2).height = 16;
+    ws1.getCell(2, sumS+1).value = 'للخدمات الطبية';
+    ws1.getCell(2, sumS+1).font = { bold:true, size:11 };
+    ws1.getCell(2, sumS+1).alignment = cen;
+
+    // صف 4: الفترة
+    ws1.getRow(4).height = 20;
+    ws1.getCell(4,4).value = 'From :'; ws1.getCell(4,4).font={bold:true};
+    ws1.getCell(4,8).value = `${fmtD(fromDate)}     To`; ws1.getCell(4,8).font={bold:true};
+    ws1.getCell(4,14).value = fmtD(toDate); ws1.getCell(4,14).font={bold:true};
+    ws1.getCell(4,18).value = 'Department :'; ws1.getCell(4,18).font={bold:true};
+
+    // صف 6: رؤوس
+    ws1.getRow(6).height = 26;
+    hdr(ws1,6,2,'م'); hdr(ws1,6,3,'الأسـم');
+    for(let i=0;i<totalDays;i++) hdr(ws1,6,i+4,days[i].getDate());
+    ['أيام الحضور','راحة أسبوعية','غياب باذن','غياب بدون اذن','أجازة مرضية','أجازة سنوية','أجازة رسمية']
+      .forEach((h,i) => hdr(ws1,6,sumS+1+i,h));
+
+    const {data:allAbs} = await sb.from('absences').select('*');
+
+    agents.forEach((agent, ai) => {
+      const rn = ai+7;
+      ws1.getRow(rn).height = 17;
+      const bg = ai%2===0 ? LGRAY : WHITE;
+
+      const setCell = (col, val, opts={}) => {
+        const c = ws1.getCell(rn,col);
+        c.value = val;
+        c.border = bd;
+        c.alignment = opts.align||cen;
+        c.font = { size:9, bold:opts.bold||false, color:{argb:opts.color||'FF000000'} };
+        if(opts.bg) c.fill={type:'pattern',pattern:'solid',fgColor:{argb:opts.bg}};
+        else c.fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};
+      };
+
+      setCell(2, ai+1);
+      setCell(3, agent.full_name||agent.name, {align:rgt, bold:true});
+
+      days.forEach((day,di) => {
+        const col = di+4;
+        const dateStr = `${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
+        const dayName = DAY_N[day.getDay()];
+        const leave = S.leaves.find(l=>l.agent_id===agent.id&&dateStr>=l.from_date&&dateStr<=l.to_date);
+        const absent = (allAbs||[]).find(a=>a.agent_id===agent.id&&a.day===dayName);
+        const inSched = isAgentInSchedule(agent.name, dayName);
+
+        let val='', cellBg=bg, color='FF000000';
         if(leave){
-          if(leave.type==='إجازة مرضية'){val='S';bg2='FFFFE699';cS++;}
-          else if(leave.type==='إجازة سنوية'){val='V';bg2='FFBDD7EE';cV++;}
-          else if(leave.type==='إجازة رسمية'){val='H';bg2='FFFFE699';cH++;}
-          else{val='X';bg2='FFFFD966';cX++;}
-        } else if(absent){val='A';bg2='FFFFCCCC';cA++;}
-        else cP++;
-        const cell=ws1.getCell(rn,d+2);
-        cell.value=val;cell.font={bold:true,size:9,color:{argb:val==='A'?'FFFF0000':val==='P'?'FF375623':'FF000000'}};
-        cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:bg2}};cell.alignment=cen;cell.border=border;
-      }
-      [cP,cOFF,cX,cA,cS,cV,cH].forEach((v,i)=>{const c=ws1.getCell(rn,daysInMonth+3+i);c.value=v;c.font={bold:true};c.alignment=cen;c.border=border;c.fill={type:'pattern',pattern:'solid',fgColor:{argb:i===0?'FFE2EFDA':i===3?'FFFFCCCC':LGRAY}};});
-    });
-    ws1.getColumn(1).width=5;ws1.getColumn(2).width=30;
-    for(let d=1;d<=daysInMonth;d++)ws1.getColumn(d+2).width=5;
-    for(let i=0;i<7;i++)ws1.getColumn(daysInMonth+3+i).width=13;
+          if(leave.type==='إجازة مرضية')      {val='S';cellBg=SICK_C;}
+          else if(leave.type==='إجازة سنوية') {val='V';cellBg=VAC_C;}
+          else if(leave.type==='إجازة رسمية') {val='H';cellBg=HOL_C;}
+          else                                  {val='A';cellBg=ABS_C;}
+        } else if(absent) {
+          val='A'; cellBg=ABS_C; color='FFFF0000';
+        } else if(!inSched) {
+          val='OFF'; cellBg=OFF_C;
+        } else {
+          val='p'; color='FF375623';
+        }
+        setCell(col, val, {bg:cellBg, color, bold: val!=='p'&&val!=='OFF'});
+      });
 
-    // ── شيت الإضافي ──
-    const ws2=wb.addWorksheet('الاضافى',{views:[{rightToLeft:true}]});
-    ws2.mergeCells('A1:J1');const wt2=ws2.getCell('A1');wt2.value=`تقرير الإضافي — ${MONTHS[month]} ${year}`;wt2.font={bold:true,size:14,color:{argb:WHITE}};wt2.fill={type:'pattern',pattern:'solid',fgColor:{argb:BLUE}};wt2.alignment=cen;ws2.getRow(1).height=30;
-    ['م','الاسم الكامل','الوظيفة','الفرع','ساعات إضافية','التاريخ','أيام إضافية','التاريخ','سبب العمل الإضافي','ملاحظات'].forEach((h,i)=>{const c=ws2.getCell(2,i+1);c.value=h;c.font={bold:true,color:{argb:WHITE}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2E75B6'}};c.alignment=cen;c.border=border;});
-    ws2.getRow(2).height=25;
-    agents.forEach((agent,ai)=>{
-      const rn=ai+3;ws2.getRow(rn).height=20;
-      const agOT=S.overtime.filter(o=>o.agent_id===agent.id&&(o.date||'').startsWith(monthStr));
-      const totalH=agOT.reduce((s,o)=>s+(o.hours||0),0);
-      const bg=ai%2===0?LGRAY:WHITE;
-      [ai+1,agent.full_name||agent.name,agent.role||'Moderation','Call Center',totalH>0?`${totalH} ساعة`:'',totalH>0?agOT.map(o=>o.date).join(', '):'','','',agOT.map(o=>o.note||'').filter(Boolean).join(' | '),''].forEach((v,i)=>{
-        const c=ws2.getCell(rn,i+1);c.value=v;c.font={size:10,bold:i===1};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};c.alignment=i<=1?rgt:cen;c.border=border;
+      // COUNTIF معادلات المجاميع
+      const cL = n => { let s=''; while(n>0){n--;s=String.fromCharCode(65+(n%26))+s;n=Math.floor(n/26);} return s; };
+      const r1=cL(4), r2=cL(3+totalDays);
+      [['p'],['OFF'],['A'],['X'],['S'],['V'],['H']].forEach(([sym],i)=>{
+        const c=ws1.getCell(rn,sumS+1+i);
+        c.value={formula:`COUNTIF(${r1}${rn}:${r2}${rn},"${sym}")`};
+        c.font={bold:true,size:9,color:{argb:WHITE}};
+        c.fill={type:'pattern',pattern:'solid',fgColor:{argb:DARK_BLUE}};
+        c.alignment=cen; c.border=bd;
       });
     });
-    [5,30,15,12,14,22,12,20,28,15].forEach((w,i)=>ws2.getColumn(i+1).width=w);
 
-    // ── شيت الخصومات ──
-    const ws3=wb.addWorksheet('الخصومات',{views:[{rightToLeft:true}]});
-    ws3.mergeCells('A1:H1');const wt3=ws3.getCell('A1');wt3.value=`تقرير الخصومات — ${MONTHS[month]} ${year}`;wt3.font={bold:true,size:14,color:{argb:WHITE}};wt3.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFC00000'}};wt3.alignment=cen;ws3.getRow(1).height=30;
-    ['م','الاسم الكامل','الوظيفة','الفرع','المخالفة','التاريخ','وصف المخالفة','ملاحظات'].forEach((h,i)=>{const c=ws3.getCell(2,i+1);c.value=h;c.font={bold:true,color:{argb:WHITE}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFC00000'}};c.alignment=cen;c.border=border;});
-    ws3.getRow(2).height=25;
-    let pr=3;
+    // Legend
+    const legR = agents.length+8;
+    [[3,'P :  Present'],[8,'Y  :  Vacation'],[18,'OFF : Day OFF'],[20,'راحة أسبوعية']].forEach(([c,v])=>{ws1.getCell(legR,c).value=v;ws1.getCell(legR,c).font={size:9};});
+    [[3,'A :  Absent with permission'],[8,'S :  Sick leave'],[18,'H : Public Holiday'],[20,'إجازة رسمية']].forEach(([c,v])=>{ws1.getCell(legR+1,c).value=v;ws1.getCell(legR+1,c).font={size:9};});
+    [[3,'X :  Absent without permission'],[8,'U : Unpaid']].forEach(([c,v])=>{ws1.getCell(legR+2,c).value=v;ws1.getCell(legR+2,c).font={size:9};});
+    ws1.getCell(legR+3,8).value='DEPARTMENT HEAD'; ws1.getCell(legR+3,8).font={bold:true};
+    ws1.getCell(legR+3,18).value='HR MANAGER'; ws1.getCell(legR+3,18).font={bold:true};
+
+    // ════ شيت الإضافي ════
+    const ws2 = wb.addWorksheet('الاضافى',{views:[{rightToLeft:true}]});
+    [5,32,15,10,14,20,14,25,28,15].forEach((w,i)=>ws2.getColumn(i+1).width=w);
+    ws2.getRow(1).height=26;
+    ['م','الأسـم','الوظيفة','الفرع','ساعات اضافية','التاريخ','ايام اضافية','التاريخ','سبب العمل الاضافى','ملاحظات']
+      .forEach((h,i)=>hdr(ws2,1,i+1,h));
+
     agents.forEach((agent,ai)=>{
-      const agP=S.penalties.filter(p=>p.agent_id===agent.id&&(p.date||'').startsWith(monthStr));
+      const rn=ai+2; ws2.getRow(rn).height=19;
       const bg=ai%2===0?LGRAY:WHITE;
-      const rowsToAdd=agP.length?agP:[null];
-      rowsToAdd.forEach((pen)=>{
-        ws3.getRow(pr).height=20;
-        [ai+1,agent.full_name||agent.name,agent.role||'Moderation','Call Center',pen?pen.type:'',pen?pen.date:'',pen?pen.reason||'':'',''].forEach((v,i)=>{
-          const c=ws3.getCell(pr,i+1);c.value=v;c.font={size:10,bold:i===1,color:{argb:i===4&&pen?'FFC00000':'FF000000'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};c.alignment=i<=1?rgt:cen;c.border=border;
+      const agOT=S.overtime.filter(o=>o.agent_id===agent.id);
+      const totH=agOT.reduce((s,o)=>s+(o.hours||0),0);
+      [ai+1,agent.full_name||agent.name,agent.role||'Moderation','Call Center',
+       totH>0?`${totH} ساعة`:'', totH>0?agOT.map(o=>o.date).join(' - '):'',
+       '','', agOT.map(o=>o.note||'').filter(Boolean).join(' | '),'']
+      .forEach((v,i)=>{
+        const c=ws2.getCell(rn,i+1);
+        c.value=v; c.font={size:9,bold:i===1};
+        c.fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};
+        c.alignment=i<=1?rgt:cen; c.border=bd;
+      });
+    });
+
+    // ════ شيت الخصومات ════
+    const ws3 = wb.addWorksheet('الخصومات',{views:[{rightToLeft:true}]});
+    [5,32,15,10,18,14,30,15].forEach((w,i)=>ws3.getColumn(i+1).width=w);
+    ws3.getRow(1).height=26;
+    ['م','الأسـم','الوظيفة','الفرع','المخالفة','التاريخ','وصف المخالفة','ملاحظات']
+      .forEach((h,i)=>hdr(ws3,1,i+1,h));
+
+    let penRow=2;
+    agents.forEach((agent,ai)=>{
+      const bg=ai%2===0?LGRAY:WHITE;
+      const agPens=S.penalties.filter(p=>p.agent_id===agent.id);
+      (agPens.length?agPens:[null]).forEach(pen=>{
+        ws3.getRow(penRow).height=19;
+        [ai+1,agent.full_name||agent.name,agent.role||'Moderation','Call Center',
+         pen?pen.type:'',pen?pen.date:'',pen?pen.reason||'':'','']
+        .forEach((v,i)=>{
+          const c=ws3.getCell(penRow,i+1);
+          c.value=v; c.font={size:9,bold:i===1,color:{argb:i===4&&pen?'FFFF0000':'FF000000'}};
+          c.fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};
+          c.alignment=i<=1?rgt:cen; c.border=bd;
         });
-        pr++;
+        penRow++;
       });
     });
-    [5,30,15,12,18,14,30,15].forEach((w,i)=>ws3.getColumn(i+1).width=w);
 
-    // حفظ وتنزيل
+    // تنزيل
     const buf=await wb.xlsx.writeBuffer();
     const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download=`HR_Report_${MONTHS[month]}_${year}.xlsx`;a.click();
-    URL.revokeObjectURL(url);
+    const a=document.createElement('a');
+    a.href=url; a.download=`HR_${MONTHS_AR[fromDate.getMonth()]}_${fromDate.getFullYear()}.xlsx`;
+    a.click(); URL.revokeObjectURL(url);
     toast('تم تصدير الملف ✓');
-  }catch(e){console.error(e);toast('خطأ في التصدير: '+e.message,'error');}
-}
 
-// ══════════════════════════════════════════
-// SELECTS
-// ══════════════════════════════════════════
-function fillAllSelects(){
-  fillSel('lv-ag',S.agents);fillSel('ot-ag',S.agents);fillSel('pen-ag',S.agents);
-  fillSel('abs-ag',S.agents);fillSel('abs-rep',S.agents);
-}
-
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
-async function init(){
-  document.getElementById('loading').style.display='flex';
-  try{
-    await loadAll();
-    updateStats();
-    renderSchedules();
-    renderAgents();
-    renderLeaves();
-    renderOvertime();
-    renderPenalties();
-    renderToday();
-    fillAllSelects();
-    document.getElementById('pen-date').value=todayStr();
-    document.getElementById('ot-date').value=todayStr();
-    document.getElementById('date-lbl').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  }catch(e){console.error(e);toast('خطأ في التحميل','error');}
-  document.getElementById('loading').style.display='none';
-}
-
-// ══════════════════════════════════════════
-// EVENT LISTENERS
-// ══════════════════════════════════════════
-document.getElementById('login-btn').addEventListener('click',doLogin);
-document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-
-async function doLogin(){
-  const pass=document.getElementById('l-pass').value;
-  // Check password from Supabase first
-  try {
-    const {data}=await sb.from('settings').select('value').eq('key','password').single();
-    if(data) S.password=data.value;
-  } catch(e){}
+  } catch(e){ console.error(e); toast("خطأ في التصدير: "+e.message,"error"); }
   if(pass===S.password){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='flex';
@@ -1560,5 +1785,33 @@ document.getElementById('btn-chg-pass').addEventListener('click',async()=>{
   toast('تم تغيير كلمة المرور على كل الأجهزة ✓');
 });
 </script>
+
+<!-- ══ WATER REMINDER ══ -->
+<div id="water-overlay">
+  <div class="water-emoji">💧</div>
+  <div class="water-title">يا لولي.. اشربي مياه! 🚨</div>
+  <div class="water-msg">
+    يا لولي 📣.. الكليتين عندك بيبعتوا استغاثة وبيقولوا: <strong>'إحنا مش صحراء جرداء!'</strong> 🏜️❌<br/><br/>
+    سيبي اللي في إيدك واشربي بقين مياه حالاً 🥛🏃‍♀️، بلاش جفاف عشان وشك ميكرمشش ويبان عندك 80 سنة وإنتِ لسه في عز شبابك 👵🏻✨<br/><br/>
+    اشربي مياه.. <strong>مياه هاه</strong> 💧، مش شاي وقهوة! ☕️✖️
+  </div>
+  <button class="water-btn" id="water-done-btn">✅ شربت مياه!</button>
+</div>
+
+<!-- ══ EYE REMINDER ══ -->
+<div id="eye-notif">
+  <button class="eye-close" id="eye-close-btn">✕</button>
+  <div class="eye-emoji">👁️</div>
+  <div class="eye-content">
+    <div class="eye-title">ألووو يا لولي! ارتاحي عينك 🚨</div>
+    <div class="eye-msg">
+      عيونك بتقولك: <strong>'إرحميني وبطّلي بربشة'</strong> 😭<br/>
+      ارمي عينك بعيد عن الشاشة <strong>20 ثانية</strong> ⏱️<br/>
+      بصي على أي حاجة بعيدة 🌲 قبل ما نشتريلك قعر كوبايات! 🤓
+    </div>
+    <div class="eye-timer"><div class="eye-timer-bar"></div></div>
+  </div>
+</div>
+
 </body>
 </html>
