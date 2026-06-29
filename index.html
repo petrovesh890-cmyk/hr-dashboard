@@ -113,12 +113,17 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 .mnav button:hover{color:var(--accent);}
 .schedules-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .scard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
-.scard-head{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:linear-gradient(135deg,var(--card2),rgba(79,124,255,.08));border-bottom:1px solid var(--border);}
+
 .scard-head h3{font-size:.82rem;font-weight:700;}
 .scard-actions{display:flex;gap:6px;}
 .edit-btn{font-size:.68rem;border:1px solid var(--border2);background:transparent;border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--muted);font-family:'Cairo',sans-serif;}
 .edit-btn:hover{color:var(--accent);}
-.absence-btn{font-size:.68rem;border:1px solid rgba(255,79,106,.3);background:rgba(255,79,106,.08);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--rose);font-family:'Cairo',sans-serif;}
+.absence-btn{font-size:.63rem;border:1px solid rgba(255,79,106,.3);background:rgba(255,79,106,.08);border-radius:6px;padding:3px 8px;cursor:pointer;color:var(--rose);font-family:'Cairo',sans-serif;}
+.leave-sched-btn{font-size:.63rem;border:1px solid rgba(245,200,66,.3);background:rgba(245,200,66,.08);border-radius:6px;padding:3px 8px;cursor:pointer;color:var(--gold);font-family:'Cairo',sans-serif;}
+.swap-btn{font-size:.63rem;border:1px solid rgba(0,210,180,.3);background:rgba(0,210,180,.08);border-radius:6px;padding:3px 8px;cursor:pointer;color:var(--teal);font-family:'Cairo',sans-serif;}
+.copy-week-btn{font-size:.63rem;border:1px solid rgba(123,94,167,.3);background:rgba(123,94,167,.08);border-radius:6px;padding:3px 8px;cursor:pointer;color:#b89aff;font-family:'Cairo',sans-serif;}
+.scard-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(135deg,var(--card2),rgba(79,124,255,.08));border-bottom:1px solid var(--border);flex-wrap:wrap;gap:5px;}
+.scard-actions{display:flex;gap:4px;flex-wrap:wrap;}
 .stbl{width:100%;border-collapse:collapse;font-size:.73rem;}
 .stbl th{padding:7px 5px;text-align:center;color:var(--muted);font-weight:500;font-size:.66rem;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2);}
 .stbl th.dl{text-align:right;padding-right:12px;}
@@ -603,6 +608,55 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
   </div>
 </div>
 
+<!-- Leave from Schedule -->
+<div class="overlay" id="leave-sched-ov">
+  <div class="modal" style="max-width:400px;">
+    <h2>📋 تسجيل إجازة / غياب بإذن</h2>
+    <input type="hidden" id="ls-sid"/>
+    <label class="flbl">الأجنت</label><select class="fi" id="ls-ag"></select>
+    <label class="flbl">نوع الإجازة</label>
+    <select class="fi" id="ls-type">
+      <option value="إجازة سنوية">إجازة سنوية (V)</option>
+      <option value="إجازة مرضية">إجازة مرضية (S)</option>
+      <option value="إجازة طارئة">إجازة طارئة (X)</option>
+      <option value="غياب بإذن">غياب بإذن (X)</option>
+      <option value="إجازة رسمية">إجازة رسمية (H)</option>
+    </select>
+    <label class="flbl">اليوم</label>
+    <select class="fi" id="ls-day"><option>السبت</option><option>الأحد</option><option>الاثنين</option><option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option><option>الجمعة</option></select>
+    <label class="flbl">من تاريخ</label><input type="date" class="fi" id="ls-from"/>
+    <label class="flbl">إلى تاريخ</label><input type="date" class="fi" id="ls-to"/>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="leave-sched-ov">إلغاء</button>
+      <button class="btn-save" id="btn-confirm-leave-sched">تسجيل</button>
+    </div>
+  </div>
+</div>
+
+<!-- Swap Shift -->
+<div class="overlay" id="swap-ov">
+  <div class="modal" style="max-width:400px;">
+    <h2>🔄 تبديل شيفت</h2>
+    <input type="hidden" id="sw-sid"/>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:1rem;">التبديل مش غياب — الاتنين بيتحسبوا حضور</p>
+    <label class="flbl">الأجنت الأول</label><select class="fi" id="sw-ag1"></select>
+    <label class="flbl">الأجنت التاني</label><select class="fi" id="sw-ag2"></select>
+    <label class="flbl">اليوم</label>
+    <select class="fi" id="sw-day"><option>السبت</option><option>الأحد</option><option>الاثنين</option><option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option><option>الجمعة</option></select>
+    <label class="flbl">الشيفت</label>
+    <select class="fi" id="sw-shift">
+      <option value="مورنينج">مورنينج</option>
+      <option value="نايت">نايت</option>
+      <option value="أوفر نايت">أوفر نايت</option>
+    </select>
+    <label class="flbl">السبب</label><input type="text" class="fi" id="sw-reason" placeholder="سبب التبديل..."/>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="swap-ov">إلغاء</button>
+      <button class="btn-save" id="btn-confirm-swap">تبديل</button>
+    </div>
+  </div>
+</div>
+
 <!-- Confirm -->
 <div class="overlay" id="confirm-ov">
   <div class="modal" style="max-width:340px;text-align:center;">
@@ -826,6 +880,9 @@ async function renderSchedules(){
       <div class="scard-head"><h3>${sc.title}</h3><div class="scard-actions">
         <button class="edit-btn" data-edit-sc="${sc.id}">✏ تعديل</button>
         <button class="absence-btn" data-rec-abs="${sc.id}">🔴 غياب</button>
+        <button class="leave-sched-btn" data-rec-leave="${sc.id}">📋 إجازة</button>
+        <button class="swap-btn" data-rec-swap="${sc.id}">🔄 تبديل</button>
+        <button class="copy-week-btn" data-copy-week="${sc.id}">📋 نسخ للكل</button>
       </div></div>
       <table class="stbl"><thead><tr><th class="dl">اليوم</th><th>مورنينج</th><th>نايت</th><th>أوفر نايت</th></tr></thead><tbody>${rows}</tbody></table>
       ${absLog}
@@ -834,6 +891,9 @@ async function renderSchedules(){
 
   grid.querySelectorAll('[data-edit-sc]').forEach(b=>b.addEventListener('click',()=>openEditSched(+b.dataset.editSc)));
   grid.querySelectorAll('[data-rec-abs]').forEach(b=>b.addEventListener('click',()=>openAbsModal(+b.dataset.recAbs)));
+  grid.querySelectorAll('[data-rec-leave]').forEach(b=>b.addEventListener('click',()=>openLeaveSchedModal(+b.dataset.recLeave)));
+  grid.querySelectorAll('[data-rec-swap]').forEach(b=>b.addEventListener('click',()=>openSwapModal(+b.dataset.recSwap)));
+  grid.querySelectorAll('[data-copy-week]').forEach(b=>b.addEventListener('click',()=>copyWeekToAll(+b.dataset.copyWeek)));
   grid.querySelectorAll('[data-del-abs]').forEach(b=>b.addEventListener('click',()=>deleteAbsence(+b.dataset.delAbs)));
 }
 
@@ -903,6 +963,97 @@ async function deleteAbsence(id){
   if(!ok)return;
   await sb.from('absences').delete().eq('id',id);
   await renderSchedules();toast('تم الحذف');
+}
+
+// ── إجازة من الجدول ──
+function openLeaveSchedModal(sid){
+  document.getElementById('ls-sid').value=sid;
+  fillSel('ls-ag',S.agents);
+  document.getElementById('ls-from').value=todayStr();
+  document.getElementById('ls-to').value=todayStr();
+  openModal('leave-sched-ov');
+}
+
+async function recordLeaveFromSched(){
+  const sid=+document.getElementById('ls-sid').value;
+  const ag_id=+document.getElementById('ls-ag').value;
+  const type=document.getElementById('ls-type').value;
+  const from_date=document.getElementById('ls-from').value;
+  const to_date=document.getElementById('ls-to').value;
+  const day=document.getElementById('ls-day').value;
+  if(!ag_id){toast('اختر الأجنت','error');return;}
+  if(!from_date||!to_date){toast('اختر التواريخ','error');return;}
+  const days=Math.round((new Date(to_date)-new Date(from_date))/86400000)+1;
+  // سجل الإجازة
+  const{data:lv}=await sb.from('leaves').insert({agent_id:ag_id,type,from_date,to_date,days,notes:`من الجدول — ${day}`}).select();
+  if(lv)S.leaves.unshift(lv[0]);
+  // لو غياب بإذن سجله في الغيابات
+  if(type==='غياب بإذن'){
+    await sb.from('absences').insert({schedule_id:sid,agent_id:ag_id,replacement_id:ag_id,day,reason:type,type:'leave'});
+  }
+  await logAction('ADD_LEAVE_FROM_SCHED','leaves',type,`${ag_id} - ${day}`);
+  await renderSchedules();renderToday();
+  closeModal('leave-sched-ov');
+  toast(`تم تسجيل ${type} ✓`);
+}
+
+// ── تبديل شيفت ──
+function openSwapModal(sid){
+  document.getElementById('sw-sid').value=sid;
+  fillSel('sw-ag1',S.agents);
+  fillSel('sw-ag2',S.agents);
+  openModal('swap-ov');
+}
+
+async function recordSwap(){
+  const sid=+document.getElementById('sw-sid').value;
+  const ag1=+document.getElementById('sw-ag1').value;
+  const ag2=+document.getElementById('sw-ag2').value;
+  const day=document.getElementById('sw-day').value;
+  const shift=document.getElementById('sw-shift').value;
+  const reason=document.getElementById('sw-reason').value.trim();
+  if(!ag1||!ag2){toast('اختر الأجنتين','error');return;}
+  if(ag1===ag2){toast('لازم أجنتين مختلفين','error');return;}
+  const a1=S.agents.find(a=>a.id===ag1);
+  const a2=S.agents.find(a=>a.id===ag2);
+  // سجل في history
+  await logAction('SWAP_SHIFT','schedules',`${a1?.name} ↔ ${a2?.name}`,`${day} - ${shift} - ${reason||'تبديل شيفت'}`);
+  // حدث الجدول فعلياً
+  const sc=S.schedules.find(s=>s.id===sid);
+  if(sc){
+    const row=sc.rows.find(r=>r.day===day);
+    if(row){
+      const shiftKey=shift==='مورنينج'?'morning':shift==='نايت'?'night':'onight';
+      let val=row[shiftKey]||'';
+      // ابدل الاسمين
+      val=val.split('+').map(n=>{
+        const t=n.trim();
+        if(t===a1.name)return a2.name;
+        if(t===a2.name)return a1.name;
+        return t;
+      }).join(' + ');
+      row[shiftKey]=val;
+    }
+    await sb.from('schedules').update({rows:sc.rows}).eq('id',sc.id);
+    await loadSchedules();await renderSchedules();
+  }
+  closeModal('swap-ov');
+  toast(`تم التبديل: ${a1?.name} ↔ ${a2?.name} ✓`);
+  document.getElementById('sw-reason').value='';
+}
+
+// ── نسخ الأسبوع للكل ──
+async function copyWeekToAll(sid){
+  const sc=S.schedules.find(s=>s.id===sid);if(!sc)return;
+  const ok=await confirm_('نسخ الجدول','هل تريد نسخ هذا الجدول للأسابيع الـ 3 الباقية؟');
+  if(!ok)return;
+  const others=S.schedules.filter(s=>s.id!==sid);
+  for(const other of others){
+    const newRows=sc.rows.map(r=>({...r}));
+    await sb.from('schedules').update({rows:newRows}).eq('id',other.id);
+  }
+  await loadSchedules();await renderSchedules();
+  toast('تم نسخ الجدول للأسابيع الأربعة ✓');
 }
 
 // ══════════════════════════════════════════
@@ -1379,6 +1530,8 @@ document.getElementById('agents-search').addEventListener('input',()=>renderAgen
 document.getElementById('agents-filter').addEventListener('change',()=>renderAgents());
 
 document.getElementById('btn-confirm-abs').addEventListener('click',recordAbsence);
+document.getElementById('btn-confirm-leave-sched').addEventListener('click',recordLeaveFromSched);
+document.getElementById('btn-confirm-swap').addEventListener('click',recordSwap);
 document.getElementById('btn-add-leave').addEventListener('click',addLeave);
 document.getElementById('btn-add-ot').addEventListener('click',addOT);
 document.getElementById('btn-add-pen').addEventListener('click',addPenalty);
