@@ -1938,15 +1938,15 @@ function startReminders(){
   if(eyeOn)   eyeTimer   = setInterval(showEyeReminder, 20*60*1000);
 }
 
-const wdb = document.getElementById('water-done-btn');
-if(wdb) wdb.addEventListener('click', ()=>{
-  document.getElementById('water-overlay').classList.remove('show');
-  toast('يا لولي برافو! الكليتين بتشكروك 💧');
-});
-
-const ecb = document.getElementById('eye-close-btn');
-if(ecb) ecb.addEventListener('click', ()=>{
-  document.getElementById('eye-notif').classList.remove('show');
+// استخدام event delegation عشان الأزرار دي موجودة بعد الـ script في الـ DOM
+document.addEventListener('click', (e)=>{
+  if(e.target.id==='water-done-btn' || e.target.closest('#water-done-btn')){
+    document.getElementById('water-overlay').classList.remove('show');
+    toast('يا لولي برافو! الكليتين بتشكروك 💧');
+  }
+  if(e.target.id==='eye-close-btn' || e.target.closest('#eye-close-btn')){
+    document.getElementById('eye-notif').classList.remove('show');
+  }
 });
 
 const togWater = document.getElementById('tog-water');
