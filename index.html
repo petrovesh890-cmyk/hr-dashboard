@@ -415,6 +415,9 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 </head>
 <body>
 
+</head>
+<body>
+
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
@@ -825,7 +828,9 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
   </div>
 </div>
 
+
 <script>
+
 // ══════════════════════════════════════════
 // SUPABASE INIT
 // ══════════════════════════════════════════
@@ -1721,15 +1726,65 @@ async function exportExcel(){
     toast('تم تصدير الملف ✓');
 
   } catch(e){ console.error(e); toast("خطأ في التصدير: "+e.message,"error"); }
-  if(pass===S.password){
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+async function init(){
+  document.getElementById('loading').style.display='flex';
+  try{
+    await loadAll();
+    updateStats();
+    renderSchedules();
+    renderAgents();
+    renderLeaves();
+    renderOvertime();
+    renderPenalties();
+    renderToday();
+    fillAllSelects();
+    document.getElementById('pen-date').value=todayStr();
+    document.getElementById('ot-date').value=todayStr();
+    document.getElementById('date-lbl').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    initReminders();
+  }catch(e){console.error(e);toast('خطأ في التحميل','error');}
+  document.getElementById('loading').style.display='none';
+}
+
+function fillAllSelects(){
+  fillSel('lv-ag',S.agents);fillSel('ot-ag',S.agents);fillSel('pen-ag',S.agents);
+  fillSel('abs-ag',S.agents);fillSel('abs-rep',S.agents);
+  fillSel('ls-ag',S.agents);fillSel('sw-ag1',S.agents);fillSel('sw-ag2',S.agents);
+}
+
+async function doLogin(){
+  const pass = document.getElementById('l-pass').value;
+  if(!pass){ document.getElementById('login-err').textContent='ادخل كلمة المرور'; return; }
+
+  try {
+    const result = await Promise.race([
+      sb.from('settings').select('value').eq('key','password').single(),
+      new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 5000))
+    ]);
+    if(result && result.data && result.data.value) S.password = result.data.value;
+  } catch(e){
+    console.log('Using local password');
+  }
+
+  if(pass === S.password){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='flex';
+    document.getElementById('login-err').textContent='';
     init();
   } else {
     document.getElementById('login-err').textContent='كلمة المرور غير صحيحة';
     document.getElementById('l-pass').value='';
+    document.getElementById('l-pass').focus();
   }
 }
+
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('l-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
 document.getElementById('logout-btn').addEventListener('click',()=>{
   document.getElementById('app').style.display='none';
@@ -1784,7 +1839,143 @@ document.getElementById('btn-chg-pass').addEventListener('click',async()=>{
   document.getElementById('new-p1').value='';document.getElementById('new-p2').value='';
   toast('تم تغيير كلمة المرور على كل الأجهزة ✓');
 });
+
+
+// ══════════════════════════════════════════
+// TASKS
+// ══════════════════════════════════════════
+let tasks = JSON.parse(localStorage.getItem('hr_tasks') || '[]');
+function saveTasks(){ localStorage.setItem('hr_tasks', JSON.stringify(tasks)); }
+
+function renderTasks(){
+  const el = document.getElementById('tasks-list');
+  if(!el) return;
+  if(!tasks.length){ el.innerHTML = '<div class="empty-msg">لا توجد تاسكات — أضف أول تاسك! ✅</div>'; return; }
+  el.innerHTML = tasks.map((t,i) => {
+    const priClass = t.pri==='high'?'pri-high':t.pri==='med'?'pri-med':'pri-low';
+    const priLabel = t.pri==='high'?'🔴 عاجل':t.pri==='med'?'🟡 متوسط':'🟢 عادي';
+    return `<div class="task-item">
+      <input type="checkbox" class="task-cb" ${t.done?'checked':''} data-task-check="${i}"/>
+      <span class="task-text ${t.done?'done':''}">${t.text}</span>
+      <span class="task-pri ${priClass}">${priLabel}</span>
+      <span class="task-del" data-task-del="${i}">🗑</span>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('[data-task-check]').forEach(cb=>{
+    cb.addEventListener('change',()=>{ tasks[+cb.dataset.taskCheck].done=cb.checked; saveTasks(); renderTasks(); });
+  });
+  el.querySelectorAll('[data-task-del]').forEach(b=>{
+    b.addEventListener('click',()=>{ tasks.splice(+b.dataset.taskDel,1); saveTasks(); renderTasks(); });
+  });
+}
+
+function addTask(){
+  const text = document.getElementById('task-input').value.trim();
+  const pri  = document.getElementById('task-pri-sel').value;
+  if(!text){ toast('اكتبي التاسك الأول!','error'); return; }
+  tasks.unshift({text,pri,done:false,created:new Date().toISOString()});
+  saveTasks(); renderTasks();
+  document.getElementById('task-input').value='';
+  toast('تم إضافة التاسك ✓');
+}
+
+const btnAddTask = document.getElementById('btn-add-task');
+const taskInputEl = document.getElementById('task-input');
+if(btnAddTask) btnAddTask.addEventListener('click', addTask);
+if(taskInputEl) taskInputEl.addEventListener('keydown', e=>{ if(e.key==='Enter') addTask(); });
+
+// ══════════════════════════════════════════
+// REMINDERS
+// ══════════════════════════════════════════
+let waterOn = true;
+let eyeOn = true;
+let waterTimer, eyeTimer;
+
+function playSound(type){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    if(type==='water'){
+      [0,200,400].forEach(delay=>{
+        const osc=ctx.createOscillator(), gain=ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value=880; osc.type='sine';
+        gain.gain.setValueAtTime(0.5, ctx.currentTime+delay/1000);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+delay/1000+0.3);
+        osc.start(ctx.currentTime+delay/1000);
+        osc.stop(ctx.currentTime+delay/1000+0.3);
+      });
+    } else {
+      const osc=ctx.createOscillator(), gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value=660; osc.type='sine';
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.4);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime+0.4);
+    }
+  }catch(e){}
+}
+
+function showWaterReminder(){
+  if(!waterOn) return;
+  playSound('water');
+  document.getElementById('water-overlay').classList.add('show');
+}
+
+function showEyeReminder(){
+  if(!eyeOn) return;
+  playSound('eye');
+  const el = document.getElementById('eye-notif');
+  el.classList.add('show');
+  const bar = el.querySelector('.eye-timer-bar');
+  bar.style.animation='none'; bar.offsetHeight;
+  bar.style.animation='timerBar 20s linear forwards';
+  setTimeout(()=>el.classList.remove('show'), 20000);
+}
+
+function startReminders(){
+  clearInterval(waterTimer); clearInterval(eyeTimer);
+  if(waterOn) waterTimer = setInterval(showWaterReminder, 2*60*60*1000);
+  if(eyeOn)   eyeTimer   = setInterval(showEyeReminder, 20*60*1000);
+}
+
+const wdb = document.getElementById('water-done-btn');
+if(wdb) wdb.addEventListener('click', ()=>{
+  document.getElementById('water-overlay').classList.remove('show');
+  toast('يا لولي برافو! الكليتين بتشكروك 💧');
+});
+
+const ecb = document.getElementById('eye-close-btn');
+if(ecb) ecb.addEventListener('click', ()=>{
+  document.getElementById('eye-notif').classList.remove('show');
+});
+
+const togWater = document.getElementById('tog-water');
+if(togWater) togWater.addEventListener('click', function(){
+  waterOn = !waterOn;
+  this.classList.toggle('on', waterOn);
+  startReminders();
+  toast(waterOn ? '💧 تذكير المياه شغال' : '💧 تذكير المياه متوقف');
+});
+
+const togEye = document.getElementById('tog-eye');
+if(togEye) togEye.addEventListener('click', function(){
+  eyeOn = !eyeOn;
+  this.classList.toggle('on', eyeOn);
+  startReminders();
+  toast(eyeOn ? '👁️ تذكير العين شغال' : '👁️ تذكير العين متوقف');
+});
+
+function initReminders(){
+  startReminders();
+  const twb = document.getElementById('test-water-btn');
+  const teb = document.getElementById('test-eye-btn');
+  if(twb) twb.addEventListener('click', showWaterReminder);
+  if(teb) teb.addEventListener('click', showEyeReminder);
+}
+
+
 </script>
+
 
 <!-- ══ WATER REMINDER ══ -->
 <div id="water-overlay">
@@ -1815,3 +2006,4 @@ document.getElementById('btn-chg-pass').addEventListener('click',async()=>{
 
 </body>
 </html>
+
