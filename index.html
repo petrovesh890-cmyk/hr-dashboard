@@ -1522,11 +1522,7 @@ function isAgentInSchedule(agentName, dayName) {
 // ── Helper: رقم العمود لحرف ──
 function columnLetter(n) {
   let s = '';
-  while (n > 0) {
-    n--;
-    s = String.fromCharCode(65 + (n % 26)) + s;
-    n = Math.floor(n / 26);
-  }
+  while (n > 0) { n--; s = String.fromCharCode(65 + (n % 26)) + s; n = Math.floor(n / 26); }
   return s;
 }
 
@@ -1541,143 +1537,215 @@ async function exportExcel(){
     const fromDate = new Date(now.getFullYear(), now.getMonth() - 1, 25);
     const toDate   = new Date(now.getFullYear(), now.getMonth(), 25);
 
-    // قائمة الأيام
     const days = [];
     let dd = new Date(fromDate);
     while (dd <= toDate) { days.push(new Date(dd)); dd.setDate(dd.getDate()+1); }
-    const totalDays = days.length;
+    const totalDays = days.length; // ~32 يوم
 
-    const fmtD = dt => `${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()}`;
+    const fmtD = dt => `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
     const DAY_N = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
     const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
-    const DARK_BLUE='FF002060', WHITE='FFFFFFFF', OFF_C='FFD9D9D9',
-          ABS_C='FFFFC7CE', SICK_C='FFFFEB9C', VAC_C='FFC6EFCE', HOL_C='FFFFE699', LGRAY='FFF2F2F2';
+    // ألوان الشيت الأصلي
+    const DARK_BLUE = 'FF002060';
+    const WHITE     = 'FFFFFFFF';
+    const OFF_C     = 'FFD9D9D9';
+    const ABS_C     = 'FFFFC7CE';
+    const SICK_C    = 'FFFFEB9C';
+    const VAC_C     = 'FFC6EFCE';
+    const HOL_C     = 'FFFFE699';
 
     const bd = { top:{style:'thin'}, left:{style:'thin'}, bottom:{style:'thin'}, right:{style:'thin'} };
     const cen = { horizontal:'center', vertical:'middle', wrapText:true };
     const rgt = { horizontal:'right',  vertical:'middle', wrapText:true };
 
-    const hdr = (ws, row, col, val, bg) => {
-      const cell = ws.getCell(row, col);
-      cell.value = val;
-      cell.font = { bold:true, size:9, color:{argb:WHITE} };
-      cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb: bg||DARK_BLUE} };
-      cell.alignment = cen;
-      cell.border = bd;
-    };
-
-    // ════ شيت الحضور ════
+    // ════════════════════════════════
+    // شيت الحضور — A&G
+    // ════════════════════════════════
     const ws1 = wb.addWorksheet('A&G', { views:[{rightToLeft:false}] });
-    ws1.getColumn(1).width = 1.2;
-    ws1.getColumn(2).width = 4;
-    ws1.getColumn(3).width = 32;
-    for(let i=0; i<totalDays; i++) ws1.getColumn(i+4).width = 4.2;
-    const sumS = totalDays + 4;
-    [1.5,8,7.5,7,9,8,7,8].forEach((w,i) => ws1.getColumn(sumS+i).width=w);
 
-    // صف 1: عنوان + شركة
-    ws1.getRow(1).height = 32;
-    const midCol = Math.floor(totalDays/2)+3;
-    ws1.getCell(1, midCol).value = 'ATTENDANCE  SHEET';
-    ws1.getCell(1, midCol).font = { bold:true, size:16, italic:true };
-    ws1.getCell(1, midCol).alignment = cen;
-    ws1.getCell(1, sumS+1).value = 'شركة هيموكيور';
-    ws1.getCell(1, sumS+1).font = { bold:true, size:11 };
-    ws1.getCell(1, sumS+1).alignment = cen;
-    ws1.getRow(2).height = 16;
-    ws1.getCell(2, sumS+1).value = 'للخدمات الطبية';
-    ws1.getCell(2, sumS+1).font = { bold:true, size:11 };
-    ws1.getCell(2, sumS+1).alignment = cen;
+    // عرض الأعمدة بالضبط زي الأصلي
+    ws1.getColumn(1).width  = 1.0;    // A فاضي
+    ws1.getColumn(2).width  = 3.55;   // م
+    ws1.getColumn(3).width  = 30.66;  // الاسم
+    // أعمدة الأيام من D للـ نهاية (نفس متوسط الأصلي)
+    for(let i=0; i<totalDays; i++) ws1.getColumn(i+4).width = 4.5;
+    // أعمدة المجاميع (AO:AU = cols 41:47)
+    const sumStartCol = totalDays + 4; // بعد كل أيام الشهر
+    ws1.getColumn(sumStartCol).width   = 7.1;   // أيام الحضور
+    ws1.getColumn(sumStartCol+1).width = 6.33;  // راحة أسبوعية
+    ws1.getColumn(sumStartCol+2).width = 6.0;   // غياب باذن
+    ws1.getColumn(sumStartCol+3).width = 8.66;  // غياب بدون باذن
+    ws1.getColumn(sumStartCol+4).width = 7.33;  // أجازة مرضية
+    ws1.getColumn(sumStartCol+5).width = 6.66;  // أجازة سنوية
+    ws1.getColumn(sumStartCol+6).width = 8.0;   // أجازة رسمية
 
-    // صف 4: الفترة
-    ws1.getRow(4).height = 20;
-    ws1.getCell(4,4).value = 'From :'; ws1.getCell(4,4).font={bold:true};
-    ws1.getCell(4,8).value = `${fmtD(fromDate)}     To`; ws1.getCell(4,8).font={bold:true};
-    ws1.getCell(4,14).value = fmtD(toDate); ws1.getCell(4,14).font={bold:true};
-    ws1.getCell(4,18).value = 'Department :'; ws1.getCell(4,18).font={bold:true};
+    // ارتفاع الصفوف بالضبط زي الأصلي
+    ws1.getRow(1).height = 5.25;
+    ws1.getRow(2).height = 24.75;
+    ws1.getRow(3).height = 21.0;
+    ws1.getRow(4).height = 21.75;
+    ws1.getRow(5).height = 21.0;
+    ws1.getRow(6).height = 6.0;
+    ws1.getRow(7).height = 42.6;
 
-    // صف 6: رؤوس
-    ws1.getRow(6).height = 26;
-    hdr(ws1,6,2,'م'); hdr(ws1,6,3,'الأسـم');
-    for(let i=0;i<totalDays;i++) hdr(ws1,6,i+4,days[i].getDate());
-    ['أيام الحضور','راحة أسبوعية','غياب باذن','غياب بدون اذن','أجازة مرضية','أجازة سنوية','أجازة رسمية']
-      .forEach((h,i) => hdr(ws1,6,sumS+1+i,h));
+    // صف 2: ATTENDANCE SHEET + اسم الشركة (بدون fill، بس bold)
+    const lastDataCol = totalDays + 3;
+    const midCol = Math.floor(lastDataCol / 2) + 1;
+    ws1.getCell(2, midCol).value = 'ATTENDANCE  SHEET';
+    ws1.getCell(2, midCol).font  = { bold:true, size:14, italic:true };
+    ws1.getCell(2, midCol).alignment = cen;
+    ws1.getCell(2, sumStartCol+2).value = 'شركة هيموكيور ';
+    ws1.getCell(2, sumStartCol+2).font  = { bold:true, size:11 };
 
+    // صف 3: للخدمات الطبية
+    ws1.getCell(3, sumStartCol+1).value = 'للخدمات الطبية ';
+    ws1.getCell(3, sumStartCol+1).font  = { bold:true, size:11 };
+
+    // صف 5: الفترة
+    ws1.getCell(5, 4).value  = ' From :';  ws1.getCell(5,4).font  = {bold:true};
+    ws1.getCell(5, 12).value = `${fmtD(fromDate)}     To `;  ws1.getCell(5,12).font = {bold:true};
+    ws1.getCell(5, 18).value = fmtD(toDate);  ws1.getCell(5,18).font = {bold:true};
+    ws1.getCell(5, 22).value = 'Department :';  ws1.getCell(5,22).font = {bold:true};
+
+    // صف 7: رؤوس الأعمدة
+    // م والاسم
+    const h7 = (col, val, withFill) => {
+      const c = ws1.getCell(7, col);
+      c.value = val;
+      c.font  = { bold:true, color: withFill ? {argb:WHITE} : undefined };
+      c.alignment = cen;
+      c.border = bd;
+      if(withFill) c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:DARK_BLUE} };
+    };
+    h7(2, 'م', false);
+    h7(3, 'الأســــــم', false);
+    // أرقام الأيام
+    for(let i=0; i<totalDays; i++){
+      const c = ws1.getCell(7, i+4);
+      c.value = days[i].getDate();
+      c.font  = { bold:true };
+      c.alignment = cen;
+      c.border = bd;
+    }
+    // رؤوس المجاميع بـ DARK_BLUE fill
+    const sumHeaders = ['أيام الحضور ','راحة أسبوعية','غياب باذن','غياب بدون باذن','أجازة مرضية','أجازة سنوية','أجازة رسمية'];
+    sumHeaders.forEach((h,i) => h7(sumStartCol+i, h, true));
+
+    // بيانات الأجنت
     const {data:allAbs} = await sb.from('absences').select('*');
 
     agents.forEach((agent, ai) => {
-      const rn = ai+7;
-      ws1.getRow(rn).height = 17;
-      const bg = ai%2===0 ? LGRAY : WHITE;
+      const rn = ai + 8; // يبدأ من صف 8 زي الأصلي
+      ws1.getRow(rn).height = 18.6;
 
-      const setCell = (col, val, opts={}) => {
-        const c = ws1.getCell(rn,col);
-        c.value = val;
-        c.border = bd;
-        c.alignment = opts.align||cen;
-        c.font = { size:9, bold:opts.bold||false, color:{argb:opts.color||'FF000000'} };
-        if(opts.bg) c.fill={type:'pattern',pattern:'solid',fgColor:{argb:opts.bg}};
-        else c.fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};
-      };
+      // م
+      const numC = ws1.getCell(rn, 2);
+      numC.value = ai+1; numC.font={bold:true}; numC.alignment=cen; numC.border=bd;
 
-      setCell(2, ai+1);
-      setCell(3, agent.full_name||agent.name, {align:rgt, bold:true});
+      // الاسم
+      const nameC = ws1.getCell(rn, 3);
+      nameC.value = agent.full_name||agent.name;
+      nameC.font  = {bold:true}; nameC.alignment=rgt; nameC.border=bd;
 
-      days.forEach((day,di) => {
-        const col = di+4;
+      // هل هو مدير؟ (يتحسب حاضر تلقائياً)
+      const isManager = (agent.role||'').includes('مدير') || (agent.role||'').includes('مديرة');
+
+      // بيانات كل يوم
+      days.forEach((day, di) => {
+        const col = di + 4;
         const dateStr = `${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
         const dayName = DAY_N[day.getDay()];
-        const leave = S.leaves.find(l=>l.agent_id===agent.id&&dateStr>=l.from_date&&dateStr<=l.to_date);
-        const absent = (allAbs||[]).find(a=>a.agent_id===agent.id&&a.day===dayName);
-        const inSched = isAgentInSchedule(agent.name, dayName);
 
-        let val='', cellBg=bg, color='FF000000';
+        // إجازة مسجلة؟
+        const leave = S.leaves.find(l => l.agent_id===agent.id && dateStr>=l.from_date && dateStr<=l.to_date);
+        // غياب مسجل؟
+        const absent = (allAbs||[]).find(a => a.agent_id===agent.id && a.day===dayName);
+        // في الجدول؟ (للأجنت العاديين)
+        const inSched = isManager ? true : isAgentInSchedule(agent.name, dayName);
+
+        let val = '', bgColor = null;
         if(leave){
-          if(leave.type==='إجازة مرضية')      {val='S';cellBg=SICK_C;}
-          else if(leave.type==='إجازة سنوية') {val='V';cellBg=VAC_C;}
-          else if(leave.type==='إجازة رسمية') {val='H';cellBg=HOL_C;}
-          else                                  {val='A';cellBg=ABS_C;}
+          if(leave.type==='إجازة مرضية')      { val='S'; bgColor=SICK_C; }
+          else if(leave.type==='إجازة سنوية') { val='V'; bgColor=VAC_C; }
+          else if(leave.type==='إجازة رسمية') { val='H'; bgColor=HOL_C; }
+          else if(leave.type==='غياب بإذن')   { val='A'; bgColor=ABS_C; }
+          else                                  { val='X'; bgColor=ABS_C; }
         } else if(absent) {
-          val='A'; cellBg=ABS_C; color='FFFF0000';
+          val='A'; bgColor=ABS_C;
         } else if(!inSched) {
-          val='OFF'; cellBg=OFF_C;
+          val='OFF'; bgColor=OFF_C;
         } else {
-          val='p'; color='FF375623';
+          val='p';
         }
-        setCell(col, val, {bg:cellBg, color, bold: val!=='p'&&val!=='OFF'});
+
+        const cell = ws1.getCell(rn, col);
+        cell.value = val;
+        cell.font  = { bold: val!=='' };
+        cell.alignment = cen;
+        cell.border = bd;
+        if(bgColor) cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:bgColor} };
       });
 
-      // COUNTIF معادلات المجاميع
-      const cL = n => { let s=''; while(n>0){n--;s=String.fromCharCode(65+(n%26))+s;n=Math.floor(n/26);} return s; };
-      const r1=cL(4), r2=cL(3+totalDays);
-      [['p'],['OFF'],['A'],['X'],['S'],['V'],['H']].forEach(([sym],i)=>{
-        const c=ws1.getCell(rn,sumS+1+i);
-        c.value={formula:`COUNTIF(${r1}${rn}:${r2}${rn},"${sym}")`};
-        c.font={bold:true,size:9,color:{argb:WHITE}};
-        c.fill={type:'pattern',pattern:'solid',fgColor:{argb:DARK_BLUE}};
-        c.alignment=cen; c.border=bd;
+      // معادلات المجاميع بنفس نطاق الأصلي
+      const dL  = columnLetter(4);            // D
+      const amL = columnLetter(totalDays+3);  // AM نهاية أيام الحضور
+      const anL = columnLetter(totalDays+4);  // AN نهاية الغياب والراحة
+
+      const formulas = [
+        `COUNTIF(${dL}${rn}:${amL}${rn},"P")`,   // حضور (P بكابيتال زي الأصلي)
+        `COUNTIF(${dL}${rn}:${anL}${rn},"OFF")`,  // راحة
+        `COUNTIF(${dL}${rn}:${anL}${rn},"A")`,    // غياب باذن
+        `COUNTIF(${dL}${rn}:${anL}${rn},"X")`,    // غياب بدون اذن
+        `COUNTIF(${dL}${rn}:${anL}${rn},"S")`,    // مرضية
+        `COUNTIF(${dL}${rn}:${amL}${rn},"V")`,    // سنوية
+        `COUNTIF(${dL}${rn}:${amL}${rn},"H")`,    // رسمية
+      ];
+
+      formulas.forEach((formula, i) => {
+        const c = ws1.getCell(rn, sumStartCol+i);
+        c.value = { formula };
+        c.font  = { bold:true, color:{argb:WHITE} };
+        c.fill  = { type:'pattern', pattern:'solid', fgColor:{argb:DARK_BLUE} };
+        c.alignment = cen;
+        c.border = bd;
       });
     });
 
-    // Legend
-    const legR = agents.length+8;
-    [[3,'P :  Present'],[8,'Y  :  Vacation'],[18,'OFF : Day OFF'],[20,'راحة أسبوعية']].forEach(([c,v])=>{ws1.getCell(legR,c).value=v;ws1.getCell(legR,c).font={size:9};});
-    [[3,'A :  Absent with permission'],[8,'S :  Sick leave'],[18,'H : Public Holiday'],[20,'إجازة رسمية']].forEach(([c,v])=>{ws1.getCell(legR+1,c).value=v;ws1.getCell(legR+1,c).font={size:9};});
-    [[3,'X :  Absent without permission'],[8,'U : Unpaid']].forEach(([c,v])=>{ws1.getCell(legR+2,c).value=v;ws1.getCell(legR+2,c).font={size:9};});
-    ws1.getCell(legR+3,8).value='DEPARTMENT HEAD'; ws1.getCell(legR+3,8).font={bold:true};
-    ws1.getCell(legR+3,18).value='HR MANAGER'; ws1.getCell(legR+3,18).font={bold:true};
+    // صف Legend
+    const legR = agents.length + 9;
+    ws1.getRow(legR).height   = 16;
+    ws1.getRow(legR+1).height = 16;
+    ws1.getRow(legR+2).height = 16;
+    ws1.getRow(legR+3).height = 20;
 
-    // ════ شيت الإضافي ════
-    const ws2 = wb.addWorksheet('الاضافى',{views:[{rightToLeft:true}]});
-    [5,32,15,10,14,20,14,25,28,15].forEach((w,i)=>ws2.getColumn(i+1).width=w);
-    ws2.getRow(1).height=26;
-    ['م','الأسـم','الوظيفة','الفرع','ساعات اضافية','التاريخ','ايام اضافية','التاريخ','سبب العمل الاضافى','ملاحظات']
-      .forEach((h,i)=>hdr(ws2,1,i+1,h));
+    const legSet = (row, col, val) => {
+      ws1.getCell(row,col).value = val;
+      ws1.getCell(row,col).font  = { size:9 };
+    };
+    legSet(legR,   3, 'P :  Present');              legSet(legR,   8, 'Y  :  Vacation');
+    legSet(legR,   18, 'OFF : Day OFF');             legSet(legR,   20, 'راحة أسبوعية');
+    legSet(legR+1, 3, 'A :  Absent with permission'); legSet(legR+1, 8, 'S :  Sick leave');
+    legSet(legR+1, 18, 'H : Public Holiday');        legSet(legR+1, 20, 'إجازة رسمية');
+    legSet(legR+2, 3, 'X :  Absent without permission'); legSet(legR+2, 8, 'U : Unpaid');
+    ws1.getCell(legR+3, 8).value  = 'DEPARTMENT HEAD'; ws1.getCell(legR+3, 8).font  = {bold:true};
+    ws1.getCell(legR+3, 18).value = 'HR MANAGER';       ws1.getCell(legR+3, 18).font = {bold:true};
 
-    agents.forEach((agent,ai)=>{
+    // ════════════════════════════════
+    // شيت الإضافي
+    // ════════════════════════════════
+    const ws2 = wb.addWorksheet('الاضافى', {views:[{rightToLeft:true}]});
+    [5,32,15,10,14,20,14,25,28,15].forEach((w,i) => ws2.getColumn(i+1).width=w);
+    ws2.getRow(1).height = 26;
+    ['م','الأسـم','الوظيفة','الفرع','ساعات اضافية','التاريخ','ايام اضافية','التاريخ','سبب العمل الاضافى','ملاحظات'].forEach((h,i) => {
+      const c=ws2.getCell(1,i+1);
+      c.value=h; c.font={bold:true,color:{argb:WHITE}};
+      c.fill={type:'pattern',pattern:'solid',fgColor:{argb:DARK_BLUE}};
+      c.alignment=cen; c.border=bd;
+    });
+    agents.forEach((agent,ai) => {
       const rn=ai+2; ws2.getRow(rn).height=19;
-      const bg=ai%2===0?LGRAY:WHITE;
+      const bg = ai%2===0 ? 'FFF2F2F2' : 'FFFFFFFF';
       const agOT=S.overtime.filter(o=>o.agent_id===agent.id);
       const totH=agOT.reduce((s,o)=>s+(o.hours||0),0);
       [ai+1,agent.full_name||agent.name,agent.role||'Moderation','Call Center',
@@ -1691,21 +1759,26 @@ async function exportExcel(){
       });
     });
 
-    // ════ شيت الخصومات ════
-    const ws3 = wb.addWorksheet('الخصومات',{views:[{rightToLeft:true}]});
-    [5,32,15,10,18,14,30,15].forEach((w,i)=>ws3.getColumn(i+1).width=w);
-    ws3.getRow(1).height=26;
-    ['م','الأسـم','الوظيفة','الفرع','المخالفة','التاريخ','وصف المخالفة','ملاحظات']
-      .forEach((h,i)=>hdr(ws3,1,i+1,h));
-
+    // ════════════════════════════════
+    // شيت الخصومات
+    // ════════════════════════════════
+    const ws3 = wb.addWorksheet('الخصومات', {views:[{rightToLeft:true}]});
+    [5,32,15,10,18,14,30,15].forEach((w,i) => ws3.getColumn(i+1).width=w);
+    ws3.getRow(1).height = 26;
+    ['م','الأسـم','الوظيفة','الفرع','المخالفة','التاريخ','وصف المخالفة','ملاحظات'].forEach((h,i) => {
+      const c=ws3.getCell(1,i+1);
+      c.value=h; c.font={bold:true,color:{argb:WHITE}};
+      c.fill={type:'pattern',pattern:'solid',fgColor:{argb:DARK_BLUE}};
+      c.alignment=cen; c.border=bd;
+    });
     let penRow=2;
-    agents.forEach((agent,ai)=>{
-      const bg=ai%2===0?LGRAY:WHITE;
+    agents.forEach((agent,ai) => {
+      const bg = ai%2===0 ? 'FFF2F2F2' : 'FFFFFFFF';
       const agPens=S.penalties.filter(p=>p.agent_id===agent.id);
-      (agPens.length?agPens:[null]).forEach(pen=>{
+      (agPens.length?agPens:[null]).forEach(pen => {
         ws3.getRow(penRow).height=19;
         [ai+1,agent.full_name||agent.name,agent.role||'Moderation','Call Center',
-         pen?pen.type:'',pen?pen.date:'',pen?pen.reason||'':'','']
+         pen?pen.type:'', pen?pen.date:'', pen?pen.reason||'':'','']
         .forEach((v,i)=>{
           const c=ws3.getCell(penRow,i+1);
           c.value=v; c.font={size:9,bold:i===1,color:{argb:i===4&&pen?'FFFF0000':'FF000000'}};
@@ -1716,13 +1789,15 @@ async function exportExcel(){
       });
     });
 
-    // تنزيل
-    const buf=await wb.xlsx.writeBuffer();
-    const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url; a.download=`HR_${MONTHS_AR[fromDate.getMonth()]}_${fromDate.getFullYear()}.xlsx`;
-    a.click(); URL.revokeObjectURL(url);
+    // تنزيل الملف
+    const buf  = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `HR_${MONTHS_AR[fromDate.getMonth()]}_${fromDate.getFullYear()}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
     toast('تم تصدير الملف ✓');
 
   } catch(e){ console.error(e); toast("خطأ في التصدير: "+e.message,"error"); }
